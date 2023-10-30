@@ -83,11 +83,6 @@ class InMemoryProductRepositoryTest {
             // given
             UUID uuid = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
 
-            Product expected = new Product(
-                    uuid, "Молоко аба", "это однозначно коровье молоко", BigDecimal.valueOf(3.99), //Примерно такой добавить
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
-
-
             // when
             Product actual = productRepository.findById(uuid).orElseThrow();
 
