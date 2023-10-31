@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,12 +74,11 @@ class ProductServiceImplTest {
 
             doReturn(Optional.empty())
                     .when(productRepository).findById(uuid);
-            when(mapper.toInfoProductDto(null))
-                    .thenReturn(null);
 
             // when, then
-            assertThatExceptionOfType(ProductNotFoundException.class)
-                    .isThrownBy(() -> productService.get(uuid));
+            assertThatThrownBy(() -> productService.get(uuid))
+                    .isInstanceOf(ProductNotFoundException.class)
+                    .hasMessage(String.format("Product with uuid: %s not found", uuid));
         }
     }
 
@@ -155,12 +154,15 @@ class ProductServiceImplTest {
             Product productToSave = ProductTestData.builder()
                     .withUuid(null)
                     .build().buildProduct();
-            UUID expected = ProductTestData.builder().build().buildProduct().getUuid();
             ProductDto productDto = ProductTestData.builder()
                     .withUuid(null)
                     .build().buildProductDto();
+            UUID expected = ProductTestData.builder().build().buildProduct().getUuid();
+            Product productAfterSaving = ProductTestData.builder()
+                    .withUuid(expected)
+                    .build().buildProduct();
 
-            doReturn(expected)
+            doReturn(productAfterSaving)
                     .when(productRepository).save(productToSave);
             when(mapper.toProduct(productDto))
                     .thenReturn(productToSave);
@@ -195,6 +197,8 @@ class ProductServiceImplTest {
                     .withName("Кефир")
                     .build().buildProductDto();
 
+            doReturn(Optional.of(productToUpdate))
+                    .when(productRepository).findById(uuid);
             doReturn(expected)
                     .when(productRepository).save(productAfterMerge);
             when(mapper.merge(productToUpdate, productDto))
