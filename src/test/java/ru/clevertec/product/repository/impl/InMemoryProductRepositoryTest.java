@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import ru.clevertec.product.entity.Product;
 import ru.clevertec.product.repository.ProductRepository;
+import ru.clevertec.product.util.ProductTestData;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,6 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class InMemoryProductRepositoryTest {
 
@@ -29,7 +32,7 @@ class InMemoryProductRepositoryTest {
         @Test
         void findByIdShouldReturnProductClassTypeWithRealUUIDFromDB() {
             // given
-            UUID uuid = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
+            UUID uuid = ProductTestData.builder().build().getUuid();
 
             // when
             var actual = productRepository.findById(uuid).orElseThrow();
@@ -40,7 +43,7 @@ class InMemoryProductRepositoryTest {
         @Test
         void findByIdShouldReturnOptionalClassTypeWhenUUIDIsNotExistInDB() {
             // given
-            UUID uuid = UUID.fromString("b23c446a-cfb1-4bf2-9713-a283f0fe2f48"); //с таким не добавлять.. его типа нет в бд
+            UUID uuid = UUID.randomUUID();
 
             // when
             var actual = productRepository.findById(uuid);
@@ -51,7 +54,7 @@ class InMemoryProductRepositoryTest {
         @Test
         void findByIdShouldReturnEmptyOptionalWhenUUIDIsNotExistInDB() {
             // given
-            UUID uuid = UUID.fromString("b23c446a-cfb1-4bf2-9713-a283f0fe2f48"); //с таким не добавлять.. его типа нет в бд
+            UUID uuid = UUID.randomUUID(); //с таким не добавлять.. его типа нет в бд
             Optional<Product> expected = Optional.empty();
 
             // when
@@ -63,13 +66,10 @@ class InMemoryProductRepositoryTest {
         @Test
         void findByIdShouldReturnProductWithSameFields() {
             // given
-            UUID uuid = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
-            Product expected = new Product(
-                    uuid, "Молоко", "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
+            Product expected = ProductTestData.builder().build().buildProduct();
 
             // when
-            Product actual = productRepository.findById(uuid).orElseThrow();
+            Product actual = productRepository.findById(expected.getUuid()).orElseThrow();
 
             // then
             assertThat(actual)
@@ -78,10 +78,11 @@ class InMemoryProductRepositoryTest {
                     .hasFieldOrPropertyWithValue(Product.Fields.description, expected.getDescription())
                     .hasFieldOrPropertyWithValue(Product.Fields.price, expected.getPrice())
                     .hasFieldOrPropertyWithValue(Product.Fields.created, expected.getCreated());
-        } @Test
+        }
+        @Test
         void findByIdShouldReturnProductWithFieldRequirements() {
             // given
-            UUID uuid = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
+            UUID uuid = ProductTestData.builder().build().getUuid();
 
             // when
             Product actual = productRepository.findById(uuid).orElseThrow();
@@ -110,14 +111,15 @@ class InMemoryProductRepositoryTest {
         @Test
         void findAll() {
             // given
-            UUID uuid1 = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
-            UUID uuid2 = UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2eda"); //и лист с 2мя продуктами
-            Product product1 = new Product(
-                    uuid1, "Молоко", "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
-            Product product2 = new Product(
-                    uuid2, "Кефир", "это однозначно кефир", BigDecimal.valueOf(2.99),
-                    LocalDateTime.of(2023, 10, 29, 17, 50));
+            Product product1 = ProductTestData.builder().build().buildProduct();
+            Product product2 = ProductTestData.builder()
+                    .withUuid(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2eda"))
+                    .withName("Кефир")
+                    .withDescription("это однозначно кефир")
+                    .withPrice( BigDecimal.valueOf(2.99))
+                    .withCreated(LocalDateTime.of(2023, 10, 29, 17, 50))
+                    .build().buildProduct();
+
             List<Product> expected = List.of(product1, product2);
 
             // when
@@ -127,8 +129,7 @@ class InMemoryProductRepositoryTest {
             assertThat(actual)
                     .isNotEmpty()
                     .hasSameSizeAs(expected)
-                    .hasOnlyElementsOfType(Product.class)
-            ;
+                    .hasOnlyElementsOfType(Product.class);
         }
     }
 
@@ -137,12 +138,11 @@ class InMemoryProductRepositoryTest {
         @Test
         void saveWhenProductExist() {
             // given
-            UUID uuid = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
-            Product expected = new Product(
-                    uuid, "Молоко", "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
+            Product expected = ProductTestData.builder().build().buildProduct();
+
             // when
             Product actual = productRepository.save(expected);
+
             // then
             assertThat(actual)
                     .hasFieldOrPropertyWithValue(Product.Fields.name, expected.getName())
@@ -155,12 +155,9 @@ class InMemoryProductRepositoryTest {
             // given
             Product expected = null;
 
-            // when
-            Product actual = productRepository.save(expected);
-
-            // then
-            assertThat(actual)
-                    .isInstanceOf(IllegalArgumentException.class);
+            // when, then
+            assertThatExceptionOfType(IllegalArgumentException.class)
+                    .isThrownBy(() -> productRepository.save(expected));
         }
     }
 
@@ -169,7 +166,7 @@ class InMemoryProductRepositoryTest {
         @Test
         void delete() {
             // given
-            UUID uuid = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
+            UUID uuid = ProductTestData.builder().build().getUuid();
 
             // when
             Optional<Product> beforeDelete = productRepository.findById(uuid);
