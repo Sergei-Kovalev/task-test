@@ -10,6 +10,7 @@ import ru.clevertec.product.data.InfoProductDto;
 import ru.clevertec.product.data.ProductDto;
 import ru.clevertec.product.entity.Product;
 import ru.clevertec.product.mapper.ProductMapper;
+import ru.clevertec.product.util.ProductTestData;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,13 +34,9 @@ class ProductMapperImplTest {
         @Test
         void toProductTest() {
             // given
-            UUID uuid = UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"); //реализовать с таким UUID
-            Product expected = new Product(
-                    uuid, "Молоко", "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
+            Product expected = ProductTestData.builder().build().buildProduct();
 
-            ProductDto productDto = new ProductDto(
-                    "Молоко", "это однозначно коровье молоко", BigDecimal.valueOf(3.99));
+            ProductDto productDto = ProductTestData.builder().build().buildProductDto();
 
             // when
             Product actual = productMapper.toProduct(productDto);
@@ -72,11 +69,8 @@ class ProductMapperImplTest {
         @Test
         void toInfoProductDtoWithoutParameters() {
             // given
-            Product product = new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                    "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
-            InfoProductDto expected = new InfoProductDto(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                    "это однозначно коровье молоко", BigDecimal.valueOf(3.99));
+            Product product = ProductTestData.builder().build().buildProduct();
+            InfoProductDto expected = ProductTestData.builder().build().buildInfoProduct();
 
             // when
             InfoProductDto actual = productMapper.toInfoProductDto(product);
@@ -105,7 +99,6 @@ class ProductMapperImplTest {
                     .hasFieldOrPropertyWithValue(InfoProductDto.Fields.description, expected.description())
                     .hasFieldOrPropertyWithValue(InfoProductDto.Fields.price, expected.price());
         }
-
     }
 
     @Nested
@@ -113,15 +106,14 @@ class ProductMapperImplTest {
         @Test
         void mergeWithoutParameters() {
             // given
-            Product product = new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                    "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
-            ProductDto productDto = new ProductDto("Молоко",
-                    "это однозначно коровье молоко", BigDecimal.valueOf(4.00)); // изменил цену
+            Product product = ProductTestData.builder().build().buildProduct();
+            ProductDto productDto = ProductTestData.builder()
+                    .withPrice(BigDecimal.valueOf(4.00)) // изменил цену
+                    .build().buildProductDto();
 
-            Product expected = new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                    "это однозначно коровье молоко", BigDecimal.valueOf(4.00),
-                    LocalDateTime.of(2023, 10, 29, 17, 30));
+            Product expected = ProductTestData.builder()
+                    .withPrice(BigDecimal.valueOf(4.00)) // с измененной ценой
+                    .build().buildProduct();
 
             // when
             Product actual = productMapper.merge(product, productDto);
@@ -157,32 +149,36 @@ class ProductMapperImplTest {
 
     public static Stream<Arguments> getArgumentsForMergeMethod() {
         return Stream.of(
-                Arguments.of(new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                        "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                        LocalDateTime.of(2023, 10, 29, 17, 30)),
-                        new ProductDto("Молоко",
-                                "это однозначно коровье молоко", BigDecimal.valueOf(4.00)), // изменение цены
-                        new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                                "это однозначно коровье молоко", BigDecimal.valueOf(4.00),
-                                LocalDateTime.of(2023, 10, 29, 17, 30))
+                Arguments.of(
+                        ProductTestData.builder().build().buildProduct(),
+                        ProductTestData.builder()
+                                .withPrice(BigDecimal.valueOf(4.00)) // изменение цены
+                                .build().buildProductDto(),
+                        ProductTestData.builder()
+                                .withPrice(BigDecimal.valueOf(4.00))
+                                .build().buildProduct()
                         ),
-                Arguments.of(new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                        "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                        LocalDateTime.of(2023, 10, 29, 17, 30)),
-                        new ProductDto("Напиток",
-                                "это однозначно коровье молоко", BigDecimal.valueOf(3.99)), // изменение наименования
-                        new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Напиток",
-                                "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                                LocalDateTime.of(2023, 10, 29, 17, 30))
+                Arguments.of(
+                        ProductTestData.builder().build().buildProduct(),
+                        ProductTestData.builder()
+                                .withName("Напиток") // изменение наименования
+                                .build().buildProductDto(),
+                        ProductTestData.builder()
+                                .withName("Напиток")
+                                .build().buildProduct()
                         ),
-                Arguments.of(new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                        "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                        LocalDateTime.of(2023, 10, 29, 17, 30)),
-                        new ProductDto("Напиток",
-                                "это точно не коровье молоко", BigDecimal.valueOf(1.01)), // изменение всего
-                        new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Напиток",
-                                "это точно не коровье молоко", BigDecimal.valueOf(1.01),
-                                LocalDateTime.of(2023, 10, 29, 17, 30))
+                Arguments.of(
+                        ProductTestData.builder().build().buildProduct(),
+                        ProductTestData.builder()
+                                .withName("Напиток")                                // изменение всех полей
+                                .withDescription("это точно не коровье молоко")
+                                .withPrice(BigDecimal.valueOf(1.01))
+                                .build().buildProductDto(),
+                        ProductTestData.builder()
+                                .withName("Напиток")
+                                .withDescription("это точно не коровье молоко")
+                                .withPrice(BigDecimal.valueOf(1.01))
+                                .build().buildProduct()
                         )
         );
     }
@@ -190,18 +186,23 @@ class ProductMapperImplTest {
     public static Stream<Arguments> getArgumentsForToInfoProductTest() {
         return Stream.of(
                 Arguments.of(
-                        new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                                "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                                LocalDateTime.of(2023, 10, 29, 17, 30)),
-                        new InfoProductDto(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                        "это однозначно коровье молоко", BigDecimal.valueOf(3.99))
+                        ProductTestData.builder().build().buildProduct(),
+                        ProductTestData.builder().build().buildInfoProduct()
                 ),
                 Arguments.of(
-                        new Product(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2ed2"), "Кефир",
-                                "это однозначно из коровьего молока", BigDecimal.valueOf(2.99),
-                                LocalDateTime.of(2023, 10, 30, 17, 50)),
-                        new InfoProductDto(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2ed2"), "Кефир",
-                                "это однозначно из коровьего молока", BigDecimal.valueOf(2.99))
+                        ProductTestData.builder()
+                                .withUuid(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2ed2"))
+                                .withName("Кефир")
+                                .withDescription("это однозначно из коровьего молока")
+                                .withPrice(BigDecimal.valueOf(2.99))
+                                .withCreated(LocalDateTime.of(2023, 10, 30, 17, 50))
+                                .build().buildProduct(),
+                        ProductTestData.builder()
+                                .withUuid(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2ed2"))
+                                .withName("Кефир")
+                                .withDescription("это однозначно из коровьего молока")
+                                .withPrice(BigDecimal.valueOf(2.99))
+                                .build().buildInfoProduct()
                 )
         );
     }
@@ -209,16 +210,21 @@ class ProductMapperImplTest {
     public static Stream<Arguments> getArgumentsForToProductTest() {
         return Stream.of(
                 Arguments.of(
-                        new Product(UUID.fromString("18a9cc59-c7c7-47e2-ac77-d3127d3b2edf"), "Молоко",
-                                "это однозначно коровье молоко", BigDecimal.valueOf(3.99),
-                                LocalDateTime.of(2023, 10, 29, 17, 30)),
-                        new ProductDto("Молоко", "это однозначно коровье молоко", BigDecimal.valueOf(3.99))
+                        ProductTestData.builder().build().buildProduct(),
+                        ProductTestData.builder().build().buildProductDto()
                 ),
                 Arguments.of(
-                        new Product(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2ed2"), "Кефир",
-                                "это однозначно из коровьего молока", BigDecimal.valueOf(2.99),
-                                LocalDateTime.of(2023, 10, 30, 17, 50)),
-                        new ProductDto("Кефир", "это однозначно из коровьего молока", BigDecimal.valueOf(2.99))
+                        ProductTestData.builder()
+                                .withUuid(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2ed2"))
+                                .withName("Кефир")
+                                .withDescription("это однозначно из коровьего молока")
+                                .withPrice(BigDecimal.valueOf(2.99))
+                                .withCreated(LocalDateTime.of(2023, 10, 30, 17, 50))
+                                .build().buildProduct(),
+                        ProductTestData.builder()
+                                .withName("Кефир")
+                                .withDescription("это однозначно из коровьего молока")
+                                .withPrice(BigDecimal.valueOf(2.99))
                 )
         );
     }
