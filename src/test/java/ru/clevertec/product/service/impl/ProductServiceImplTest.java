@@ -18,6 +18,7 @@ import ru.clevertec.product.util.ProductTestData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,12 +51,13 @@ class ProductServiceImplTest {
             InfoProductDto expected = ProductTestData.builder()
                     .withUuid(uuid)
                     .build().buildInfoProduct();
-            doReturn(productFromDB)
+            doReturn(Optional.of(productFromDB))
                     .when(productRepository).findById(uuid);
             when(mapper.toInfoProductDto(productFromDB))
                     .thenReturn(expected);
             // when
             InfoProductDto actual = productService.get(uuid);
+
             // then
             assertThat(actual)
                     .isNotNull()
@@ -70,13 +72,12 @@ class ProductServiceImplTest {
             // given
             UUID uuid = UUID.randomUUID();
 
-            doReturn(null)
+            doReturn(Optional.empty())
                     .when(productRepository).findById(uuid);
             when(mapper.toInfoProductDto(null))
                     .thenReturn(null);
-            // when метод вызывается в then
 
-            // then
+            // when, then
             assertThatExceptionOfType(ProductNotFoundException.class)
                     .isThrownBy(() -> productService.get(uuid));
         }
@@ -228,5 +229,4 @@ class ProductServiceImplTest {
                     .delete(uuid);
         }
     }
-
 }
