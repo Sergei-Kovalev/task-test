@@ -115,7 +115,7 @@ class InMemoryProductRepositoryTest {
                     .withUuid(UUID.fromString("28a9cc59-c7c7-47e2-ac77-d3127d3b2eda"))
                     .withName("Кефир")
                     .withDescription("это однозначно кефир")
-                    .withPrice( BigDecimal.valueOf(2.99))
+                    .withPrice(BigDecimal.valueOf(2.99))
                     .withCreated(LocalDateTime.of(2023, 10, 29, 17, 50))
                     .build().buildProduct();
 
@@ -128,7 +128,8 @@ class InMemoryProductRepositoryTest {
             assertThat(actual)
                     .isNotEmpty()
                     .hasSameSizeAs(expected)
-                    .hasOnlyElementsOfType(Product.class);
+                    .hasOnlyElementsOfType(Product.class)
+                    .containsExactlyInAnyOrder(product1, product2);
         }
     }
 
