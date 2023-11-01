@@ -15,6 +15,8 @@ import ru.clevertec.product.exception.ProductNotFoundException;
 import ru.clevertec.product.mapper.ProductMapper;
 import ru.clevertec.product.repository.ProductRepository;
 import ru.clevertec.product.util.ProductTestData;
+import ru.clevertec.product.validators.InfoProductDtoValidator;
+import ru.clevertec.product.validators.ProductDtoValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +61,7 @@ class ProductServiceImplTest {
             InfoProductDto actual = productService.get(uuid);
 
             // then
-            assertThat(actual)
+            assertThat(InfoProductDtoValidator.validate(actual))                            // добавлена валидация
                     .isNotNull()
                     .isInstanceOf(InfoProductDto.class)
                     .hasFieldOrPropertyWithValue(InfoProductDto.Fields.uuid, expected.uuid())
@@ -112,6 +114,7 @@ class ProductServiceImplTest {
 
             // when
             List<InfoProductDto> actual = productService.getAll();
+            actual.forEach(InfoProductDtoValidator::validate);                  // добавлена валидация
 
             // then
             assertThat(actual)
@@ -141,7 +144,7 @@ class ProductServiceImplTest {
                     .thenReturn(productToSave);
 
             // when
-            productService.create(productDto);
+            productService.create(ProductDtoValidator.validate(productDto)); // добавлена валидация
 
             // then
             verify(productRepository).save(productCaptor.capture());
@@ -168,7 +171,7 @@ class ProductServiceImplTest {
                     .thenReturn(productToSave);
 
             // when
-            UUID actual = productService.create(productDto);
+            UUID actual = productService.create(ProductDtoValidator.validate(productDto)); // добавлена валидация
 
             // then
             verify(productRepository).save(productToSave);
@@ -205,7 +208,7 @@ class ProductServiceImplTest {
                     .thenReturn(productAfterMerge);
 
             // when
-            productService.update(uuid, productDto);
+            productService.update(uuid, ProductDtoValidator.validate(productDto)); // добавлена валидация
 
             // then
             verify(productRepository).save(productCaptor.capture());
