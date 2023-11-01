@@ -124,8 +124,8 @@ class ProductMapperImplTest {
                     .hasFieldOrPropertyWithValue(Product.Fields.uuid, expected.getUuid())
                     .hasFieldOrPropertyWithValue(Product.Fields.name, expected.getName())
                     .hasFieldOrPropertyWithValue(Product.Fields.description, expected.getDescription())
-                    .hasFieldOrPropertyWithValue(Product.Fields.price, expected.getUuid())
-                    .hasFieldOrPropertyWithValue(Product.Fields.created, expected.getPrice());
+                    .hasFieldOrPropertyWithValue(Product.Fields.price, expected.getPrice())
+                    .hasFieldOrPropertyWithValue(Product.Fields.created, expected.getCreated());
         }
 
         @ParameterizedTest
@@ -142,8 +142,8 @@ class ProductMapperImplTest {
                     .hasFieldOrPropertyWithValue(Product.Fields.uuid, expected.getUuid())
                     .hasFieldOrPropertyWithValue(Product.Fields.name, expected.getName())
                     .hasFieldOrPropertyWithValue(Product.Fields.description, expected.getDescription())
-                    .hasFieldOrPropertyWithValue(Product.Fields.price, expected.getUuid())
-                    .hasFieldOrPropertyWithValue(Product.Fields.created, expected.getPrice());
+                    .hasFieldOrPropertyWithValue(Product.Fields.price, expected.getPrice())
+                    .hasFieldOrPropertyWithValue(Product.Fields.created, expected.getCreated());
         }
     }
 
@@ -225,6 +225,7 @@ class ProductMapperImplTest {
                                 .withName("Кефир")
                                 .withDescription("это однозначно из коровьего молока")
                                 .withPrice(BigDecimal.valueOf(2.99))
+                                .build().buildProductDto()
                 )
         );
     }

@@ -9,16 +9,16 @@ public class ProductMapperImpl implements ProductMapper {
 
     @Override
     public Product toProduct(ProductDto productDto) {
-        return null;
+        return ProductMapper.INSTANCE.toProduct(productDto);
     }
 
     @Override
     public InfoProductDto toInfoProductDto(Product product) {
-        return null;
+        return ProductMapper.INSTANCE.toInfoProductDto(product);
     }
 
     @Override
     public Product merge(Product product, ProductDto productDto) {
-        return null;
+        return ProductMapper.INSTANCE.merge(product, productDto);
     }
 }
