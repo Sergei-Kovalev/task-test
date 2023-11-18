@@ -52,4 +52,8 @@ public class InMemoryProductRepository implements ProductRepository {
     public void delete(UUID uuid) {
         productMap.remove(uuid);
     }
+
+    public void initDBData() {
+
+    }
 }
