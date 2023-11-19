@@ -28,6 +28,7 @@ class InMemoryProductRepositoryTest {
     @BeforeEach
     void setUp() {
         productRepository = new InMemoryProductRepository();
+        productRepository.initDBData();
     }
 
     @Nested
