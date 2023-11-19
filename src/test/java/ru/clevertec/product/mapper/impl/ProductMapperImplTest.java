@@ -50,7 +50,7 @@ class ProductMapperImplTest {
         }
 
         @ParameterizedTest
-        @MethodSource("ru.clevertec.product.mapper.impl.ProductMapperImplTest#getArgumentsForToProductTest")
+        @MethodSource("ru.clevertec.product.mapper.impl.ProductMapperImplTest#getArgumentsForToProductTest") // nested - full path needed
         void toProductParameterizedTest(Product product, ProductDto productDto) {
             // given - всё в аргументах
 
@@ -67,6 +67,7 @@ class ProductMapperImplTest {
 
     @Nested
     class toInfoProductDtoTests {
+
         @Test
         void toInfoProductDtoWithoutParameters() {
             // given
@@ -84,6 +85,7 @@ class ProductMapperImplTest {
                     .hasFieldOrPropertyWithValue(InfoProductDto.Fields.description, expected.description())
                     .hasFieldOrPropertyWithValue(InfoProductDto.Fields.price, expected.price());
         }
+
         @ParameterizedTest
         @MethodSource("ru.clevertec.product.mapper.impl.ProductMapperImplTest#getArgumentsForToInfoProductTest")
         void toInfoProductDtoParametrizedTest(Product product, InfoProductDto expected) {
@@ -104,6 +106,7 @@ class ProductMapperImplTest {
 
     @Nested
     class mergeTests {
+
         @Test
         void mergeWithoutParameters() {
             // given
