@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import ru.clevertec.product.entity.Product;
+import ru.clevertec.product.exception.NullProductException;
 import ru.clevertec.product.repository.ProductRepository;
 import ru.clevertec.product.util.ProductTestData;
 import ru.clevertec.product.validators.ProductValidator;
@@ -163,7 +164,7 @@ class InMemoryProductRepositoryTest {
             Product expected = null;
 
             // when, then
-            assertThatExceptionOfType(IllegalArgumentException.class)
+            assertThatExceptionOfType(NullProductException.class)
                     .isThrownBy(() -> productRepository.save(expected));
         }
 

@@ -1,6 +1,7 @@
 package ru.clevertec.product.repository.impl;
 
 import ru.clevertec.product.entity.Product;
+import ru.clevertec.product.exception.NullProductException;
 import ru.clevertec.product.repository.ProductRepository;
 
 import java.math.BigDecimal;
@@ -27,9 +28,9 @@ public class InMemoryProductRepository implements ProductRepository {
     }
 
     @Override
-    public Product save(Product product) throws IllegalArgumentException {
+    public Product save(Product product) throws NullProductException {
         if (product == null) {
-            throw new IllegalArgumentException();
+            throw new NullProductException();
         }
         if (product.getUuid() == null) {
             product.setUuid(UUID.randomUUID());
