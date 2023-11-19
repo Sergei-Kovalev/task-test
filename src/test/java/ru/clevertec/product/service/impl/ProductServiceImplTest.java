@@ -53,10 +53,12 @@ class ProductServiceImplTest {
             InfoProductDto expected = ProductTestData.builder()
                     .withUuid(uuid)
                     .build().buildInfoProduct();
+
             doReturn(Optional.of(productFromDB))
                     .when(productRepository).findById(uuid);
             when(mapper.toInfoProductDto(productFromDB))
                     .thenReturn(expected);
+
             // when
             InfoProductDto actual = productService.get(uuid);
 
